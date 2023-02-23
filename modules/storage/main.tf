@@ -61,6 +61,8 @@ resource "aws_db_instance" "snyk_db" {
   tags = merge(var.default_tags, {
     Name = "snyk_db_${var.environment}"
   })
+  auto_minor_version_upgrade = true
+  multi_az = true
 }
 
 resource "aws_ssm_parameter" "snyk_ssm_db_host" {
