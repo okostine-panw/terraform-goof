@@ -4,6 +4,8 @@ resource "aws_db_subnet_group" "snyk_rds_subnet_grp" {
 
   tags = merge(var.default_tags, {
     Name = "snyk_rds_subnet_grp_${var.environment}"
+    }, {
+    git_org = "default"
   })
 }
 
@@ -13,6 +15,8 @@ resource "aws_security_group" "snyk_rds_sg" {
 
   tags = merge(var.default_tags, {
     Name = "snyk_rds_sg_${var.environment}"
+    }, {
+    git_org = "default"
   })
 
   # HTTP access from anywhere
@@ -39,6 +43,8 @@ resource "aws_kms_key" "snyk_db_kms_key" {
 
   tags = merge(var.default_tags, {
     Name = "snyk_db_kms_key_${var.environment}"
+    }, {
+    git_org = "default"
   })
 }
 
@@ -60,9 +66,11 @@ resource "aws_db_instance" "snyk_db" {
   kms_key_id                = aws_kms_key.snyk_db_kms_key.arn
   tags = merge(var.default_tags, {
     Name = "snyk_db_${var.environment}"
+    }, {
+    git_org = "default"
   })
   auto_minor_version_upgrade = true
-  multi_az = true
+  multi_az                   = true
 }
 
 resource "aws_ssm_parameter" "snyk_ssm_db_host" {
@@ -71,7 +79,9 @@ resource "aws_ssm_parameter" "snyk_ssm_db_host" {
   type        = "SecureString"
   value       = aws_db_instance.snyk_db.endpoint
 
-  tags = merge(var.default_tags, {})
+  tags = merge(var.default_tags, {}, {
+    git_org = "default"
+  })
 }
 
 resource "aws_ssm_parameter" "snyk_ssm_db_password" {
@@ -80,7 +90,9 @@ resource "aws_ssm_parameter" "snyk_ssm_db_password" {
   type        = "SecureString"
   value       = aws_db_instance.snyk_db.password
 
-  tags = merge(var.default_tags, {})
+  tags = merge(var.default_tags, {}, {
+    git_org = "default"
+  })
 }
 
 resource "aws_ssm_parameter" "snyk_ssm_db_user" {
@@ -89,7 +101,9 @@ resource "aws_ssm_parameter" "snyk_ssm_db_user" {
   type        = "SecureString"
   value       = aws_db_instance.snyk_db.username
 
-  tags = merge(var.default_tags, {})
+  tags = merge(var.default_tags, {}, {
+    git_org = "default"
+  })
 }
 resource "aws_ssm_parameter" "snyk_ssm_db_name" {
   name        = "/snyk-${var.environment}/DB_NAME"
@@ -99,6 +113,8 @@ resource "aws_ssm_parameter" "snyk_ssm_db_name" {
 
   tags = merge(var.default_tags, {
     environment = "${var.environment}"
+    }, {
+    git_org = "default"
   })
 }
 
@@ -106,18 +122,23 @@ resource "aws_s3_bucket" "snyk_storage" {
   bucket = "snyk-storage-${var.environment}-demo"
   tags = merge(var.default_tags, {
     name = "snyk_blob_storage_${var.environment}"
+    }, {
+    git_org = "default"
   })
 }
 
 resource "aws_s3_bucket" "my-new-undeployed-bucket" {
   bucket = "snyk-public-${var.environment}-demo"
+  tags = {
+    git_org = "default"
+  }
 }
 
 resource "aws_s3_bucket_public_access_block" "snyk_public" {
   bucket = aws_s3_bucket.my-new-undeployed-bucket.id
 
   block_public_acls   = false
-  ignore_public_acls = var.public_ignore_acl
+  ignore_public_acls  = var.public_ignore_acl
   block_public_policy = var.public_policy_control
 }
 
